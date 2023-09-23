@@ -1,0 +1,33 @@
+{
+  "name": "kpmg-scheduler",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@fontsource/roboto": "^5.0.8",
+    "@mui/material": "^5.14.10",
+    "@mui/x-date-pickers": "^6.14.0",
+    "@types/node": "20.6.3",
+    "@types/react": "18.2.22",
+    "@types/react-dom": "18.2.7",
+    "date-fns": "^2.30.0",
+    "eslint": "8.49.0",
+    "eslint-config-next": "13.5.2",
+    "next": "13.5.2",
+    "react": "^17.0.0 || ^18.0.0",
+    "react-datetime-picker": "^5.5.1",
+    "react-dom": "^17.0.0 || ^18.0.0",
+    "typescript": "5.2.2"
+  },
+  "peerDependencies": {
+    "react": "^17.0.0 || ^18.0.0",
+    "react-dom": "^17.0.0 || ^18.0.0"
+  }
+}

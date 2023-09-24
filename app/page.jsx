@@ -137,7 +137,8 @@ export default function Home() {
             display: 'flex',
             flexDirection: 'column',
             overflowX: 'auto'
-          }}>
+          }}
+          key={`box${weekdayIdx}`}>
             <Typography>{getDayString(weekdayIdx + 1)}</Typography>
             <List 
               sx={{

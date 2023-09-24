@@ -1,7 +1,7 @@
 "use client";
 
 import { Box, Button, List, ListItem, ListItemButton, ListItemText, Modal, Stack, TextField, Typography } from "@mui/material"
-import { isSameDay, nextMonday, nextThursday, parseISO } from "date-fns"
+import { format, getDay, getHours, getISODay, isSameDay, isWeekend, nextMonday, nextThursday, parseISO } from "date-fns"
 import { useEffect, useRef, useState } from "react"
 
 import 'react-datetime-picker/dist/DateTimePicker.css';
@@ -28,10 +28,30 @@ const getTimeSlots = (res) => {
   return res.reduce((accumulated, curVal) => curVal.isAvailable ? [...accumulated, parseISO(curVal.slot)] : accumulated, [])
 }
 
+const splitToWeekdays = (dates) => {
+  // Preventive measure to make sure only weekdays exist
+  const weekdaysOnly = dates.filter((date) => !isWeekend(date))
+
+  return weekdaysOnly.reduce((accumulated, curVal) => {
+    accumulated[getDay(curVal) - 1].push(curVal)
+    return accumulated
+  }, [[], [], [], [], []])
+}
+
+function getDayString(dayNumber) {
+  const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+  if (dayNumber >= 0 && dayNumber < 7) {
+    return daysOfWeek[dayNumber];
+  } else {
+    return 'Invalid day number';
+  }
+}
+
 export default function Home() {
   const [slots, setSlots] = useState([])
   const [openModal, setOpenModal] = useState(false);
-  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
   
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
@@ -49,7 +69,7 @@ export default function Home() {
     e.preventDefault();
 
     setOpenModal(false);
-    setError("");
+    setMessage("");
   }
 
   const handleSubmit = (e) => {
@@ -61,6 +81,9 @@ export default function Home() {
       "interviewee_email": email
     }
 
+    setName("")
+    setEmail("")
+
     const url = "https://kpmgschedulerbackend-production.up.railway.app/api/booking"
     const options = {
       method: "POST",
@@ -71,9 +94,15 @@ export default function Home() {
     }
 
     fetch(url, options)
-      .then(res => res.json())
-      .then(res => setError(res.message))
-      .catch(err => setError(err.message))
+      .then(res => {
+        console.log(res)
+        return res.json()})
+      .then(res => {
+        setMessage("Booking successful")
+        console.log(res)
+        return res
+      })
+      .catch(err => setMessage(err.message))
   }
 
   useEffect(() => {
@@ -89,21 +118,48 @@ export default function Home() {
       })
       .catch((error) => {
         // Handle any errors that occurred during the fetch
-        setError(error);
+        setMessage(error);
       });
   }, [])
 
   return (
-    <main>
-      <List>
-        {slots.map((date, idx) => (
-          <ListItem key={idx}>
-            <ListItemButton onClick={(e) => handleDateClick(e, date)}>
-              <ListItemText primary={date.toString()} />
-            </ListItemButton>
-          </ListItem>
+    <main
+      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+      <Box
+        sx={{
+          display: 'flex', 
+          overflowX: 'auto'
+        }}
+      >
+        {splitToWeekdays(slots).map((weekday, weekdayIdx) => (
+          <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            overflowX: 'auto'
+          }}>
+            <Typography>{getDayString(weekdayIdx + 1)}</Typography>
+            <List 
+              sx={{
+                border: '1px solid #ccc',
+                padding: '10px',
+                width: '200px',
+                height: '500px',
+                overflow: 'auto'
+              }}
+              key={weekdayIdx}
+            >
+              {weekday.map((slot, slotIdx) => (
+                <ListItem key={`(${weekdayIdx}, ${slotIdx})`}>
+                  <ListItemButton onClick={(e) => handleDateClick(e, slot)}>
+                    <ListItemText primary={format(slot, "d LLLL, HH:mm")} />
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          </Box>
         ))}
-      </List>
+      </Box>
 
       <Modal open={openModal} >
         <Box
@@ -145,7 +201,7 @@ export default function Home() {
               Submit
             </Button>
           </form>
-          {!!error && <Typography>{error}</Typography>}
+          {!!message && <Typography>{message}</Typography>}
         </Box>
       </Modal>
     </main>

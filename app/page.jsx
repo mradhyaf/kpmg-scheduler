@@ -24,7 +24,7 @@ const BOOKING_URL = "https://kpmgschedulerbackend-production.up.railway.app/api/
 //   return !res
 // }
 
-const getTimeSlots = (res: Date[]) => {
+const getTimeSlots = (res) => {
   return res.reduce((accumulated, curVal) => curVal.isAvailable ? [...accumulated, parseISO(curVal.slot)] : accumulated, [])
 }
 
@@ -37,7 +37,7 @@ export default function Home() {
   const [email, setEmail] = useState("")
   const [slot, setSlot] = useState(new Date());
 
-  const handleDateClick = (e, date: Date) => {
+  const handleDateClick = (e, date) => {
     console.log("handleDateClick()");
     e.preventDefault();
 
